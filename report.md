@@ -51,17 +51,20 @@ About 10.2% of the nodes have a postal code.
 ```
 The most common postcode is "1450" which is from the Akershus region, a county that borders Oslo (part of the output have been excluded for clarity).
 ```
-> db.oslo_data.aggregate([{"$group":{"_id":"$addr.postcode", "count":{"$sum":1}}}, {"$sort":{"count":-1}}])
+> db.oslo_data.aggregate([{"$group":{"_id":"$addr.postcode", "count":
+{"$sum":1}}}, {"$sort":{"count":-1}}])
 { "_id" : null, "count" : 2816034 }
 { "_id" : "1450", "count" : 4527 }
 ...
 ```
 Scrolling through the postcodes it can be noticed that a few of them contain the name of the city (for example "1283 Oslo"), a couple of them contain just two digits, and in those cases the first two digits were omitted because they were "00"  and there's many of them with the first two digits ranging from "13" to "35" 
 ```
-> db.oslo_data.aggregate([{"$match":{"addr.postcode":{"$gte":"13", "$nin":["N-0286","50"]}}}, {"$group":{"_id":"postcodes", "max":{"$max":"$addr.postcode"}, "min":{"$min":"$addr.postcode"}}}])
+> db.oslo_data.aggregate([{"$match":{"addr.postcode":{"$gte":"13", "$nin":
+["N-0286","50"]}}}, {"$group":{"_id":"postcodes", "max":{"$max":
+"$addr.postcode"}, "min":{"$min":"$addr.postcode"}}}])
 { "_id" : "postcodes", "max" : "3538", "min" : "1311" }
 ```
-All those postcodes come from neighbour counties and the problem turned out to be OpenStreetMap's API that when downloading the data instead of selecting just the data about Oslo it selected all the nodes and ways contained in the rectangular containing the city.
+All those postcodes come from neighbour counties and the problem turned out to be OpenStreetMap's API that when downloading the data instead of selecting just the data about Oslo it selected all the nodes and ways contained in the box containing the city.
 
 
 #### Street Names
@@ -90,7 +93,9 @@ and then I searched for each street on the map a match on the new collection, ca
 
 Most occurring sources
 ```
-> db.oslo.aggregate([{"$match":{"source":{"$exists":1}}}, {"$group":{"_id":"$source", "count":{"$sum":1}}}, {"$sort":{"count":-1}}, {"$limit":5}])
+> db.oslo.aggregate([{"$match":{"source":{"$exists":1}}}, 
+{"$group":{"_id":"$source", "count":{"$sum":1}}}, 
+{"$sort":{"count":-1}}, {"$limit":5}])
 { "_id" : "bing", "count" : 135353 }
 { "_id" : "survey", "count" : 23204 }
 { "_id" : "Bing", "count" : 22698 }
@@ -100,7 +105,10 @@ Most occurring sources
 
 Most occurring problem tags
 ```
-> db.oslo.aggregate([{"$match":{"problem_tags":{"$exists":1}}}, {"$unwind":"$problem_tags"}, {"$group":{"_id":"$problem_tags", "count":{"$sum":1}}}, {"$sort":{"count":-1}}])
+> db.oslo.aggregate([{"$match":{"problem_tags":{"$exists":1}}}, 
+{"$unwind":"$problem_tags"}, 
+{"$group":{"_id":"$problem_tags", "count":{"$sum":1}}}, 
+{"$sort":{"count":-1}}])
 { "_id" : { "class:bicycle:mtb" : "0" }, "count" : 970 }
 { "_id" : { "class:bicycle:mtb" : "1" }, "count" : 887 }
 { "_id" : { "class:bicycle:mtb" : "-1" }, "count" : 224 }
@@ -125,7 +133,7 @@ Another useful thing would be checking the formats of inserted data, like with p
 
 With this project I realized that whenever there's user input, there's errors and even if there's some standards when inserting data, they will eventually not be followed the whole time or by everyone. By saying this I'm not saying that standards are useless, but that unless they're ensured in a really strict way, they won't guarantee clean data, but just reduce the probability of errors. 
 The data I used seemed well structured and that made the modeling part easier, even if I didn't clean all the fields in the data I found that the cleaning part wasn't the most difficult part of the project, but finding the problems was.
-Another consideration that I have is that it would be pretty useful if in the OpenStreetMap API it could be possible to download data from just a city instead of delimiting the area with a rectangle.
+Another consideration that I have is that it would be pretty useful if in the OpenStreetMap API it could be possible to download data from just a city instead of delimiting the area with a box.
 
 
 ## Sources
