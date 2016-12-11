@@ -2,19 +2,17 @@ import pymongo
 import sys, re
 import json
 
-
 mongo = ("localhost", 27017)
 
 
 def iter_json(filename):
 	"""
 		Generator to read a JSON file line by line
-		useful to read big files without wasting 
-		memory.
+		useful to read big files without eating up RAM.
 	"""
 	with open(filename, "r") as f:
 		for jsonline in f:
-			yield json.loads(jsonline.strip("[").strip("]").strip("\n").strip(",")) 
+			yield json.loads(jsonline.strip("[").strip("]").strip("\n").strip(","))
 
 def get_jsonlines(filename, n = 5):
 	"""
@@ -41,7 +39,7 @@ def mongo_import(db_name, col_name, filename, overwrite = True, v = (False, 0)):
 	"""
 	client = pymongo.MongoClient(mongo[0], mongo[1])
 	collection = client[db_name][col_name]
-	
+
 	c = 0
 	if overwrite:
 		collection.drop()

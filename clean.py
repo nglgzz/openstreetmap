@@ -2,7 +2,7 @@ import pymongo, pprint, json
 import sys, re
 
 # function to check whether a string contains a digit
-has_num = lambda s: any(c.isdigit() for c in s) 
+has_num = lambda s: any(c.isdigit() for c in s)
 
 # postcodes to fix
 postcodes = {
@@ -21,7 +21,6 @@ abbreviations = {
 }
 
 
-
 def levenshtein(s1, s2):
     if len(s1) < len(s2):
         return levenshtein(s2, s1)
@@ -38,7 +37,7 @@ def levenshtein(s1, s2):
             substitutions = previous_row[j] + (c1 != c2)
             current_row.append(min(insertions, deletions, substitutions))
         previous_row = current_row
-    
+
     return previous_row[-1]
 
 def distance(str1, str2):
@@ -46,32 +45,29 @@ def distance(str1, str2):
 		Returns edit distance in percentage
 	"""
 	return 100 - int(levenshtein(str1, str2)/float(len(str2))*100)
-	
 
 
 def update_field(collection, field, old_value, new_value):
 	query = {field: old_value}
 	update = {"$set":{field: new_value}}
 	res = collection.update_many(query, update)
-	
+
 	print old_value, " -> ", new_value
 	print "(matched-modified):", res.matched_count, res.modified_count
-	
+
 	return res
 
 def check_streets(db_name, data, streets):
 	client = pymongo.MongoClient("localhost", 27017)
 	db = client[db_name]
-	
+
 	streets_col = db[streets]
 	data_col = db[data]
-
 
 	# fix postcodes
 	for old, new in postcodes.items():
 		res = update_field(data_col, "addr.postcode", old, new)
 		print "Postcode (matched,modified): ", res.matched_count, res.modified_count
-
 
 	pipeline = [{"$match":{"addr.street":{"$exists":1}}}, {"$group":{"_id":"$addr.street"}}, {"$project":{"name":"$_id"}}]
 	data_by_streets = data_col.aggregate(pipeline)
@@ -95,7 +91,7 @@ def check_streets(db_name, data, streets):
 
 
 		match = streets_col.find_one({"$text":{"$search":street["name"]}})
-		
+
 		if match != None:
 			evaluation = distance(street["name"], match["name"])
 			# 86-99 auto correct

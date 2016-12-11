@@ -1,5 +1,0 @@
-Link to the dataset I used:	http://overpass-api.de/api/map?bbox=10.0429,59.6969,11.4354,60.1312
-
-The area I used on my project is Oslo county in Norway, I chose this area cause 
-I lived close to that area, I always liked it and I wanted to know a little bit more
-about it.
